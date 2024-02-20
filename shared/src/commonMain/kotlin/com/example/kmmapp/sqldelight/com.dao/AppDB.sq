@@ -1,0 +1,28 @@
+import com.android.build.gradle.internal.dsl.decorator.SupportedPropertyType.Var.Boolean;
+
+-- 建表语句
+CREATE TABLE Launch (
+    flightNumber INTEGER NOT NULL,
+    missionName TEXT NOT NULL,
+    details TEXT,
+    launchSuccess INTEGER AS Boolean DEFAULT NULL,
+    launchDateUTC TEXT NOT NULL,
+    patchUrlSmall TEXT,
+    patchUrlLarge TEXT,
+    articleUrl TEXT
+);
+
+
+-- 插入一条信息
+insertLaunch:
+INSERT INTO Launch(flightNumber, missionName, details, launchSuccess, launchDateUTC, patchUrlSmall, patchUrlLarge, articleUrl)
+VALUES(?, ?, ?, ?, ?, ?, ?, ?);
+
+-- 移除所有信息
+removeAllLaunches:
+DELETE FROM Launch;
+
+-- 获取全部信息
+selectAllLaunchesInfo:
+SELECT Launch.*
+FROM Launch;
