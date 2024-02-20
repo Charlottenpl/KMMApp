@@ -40,10 +40,12 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.ktor.client.android)
             implementation(libs.android.driver)
+            api(libs.ktor.serialization.kotlinx.json) //序列化模块
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
             implementation(libs.native.driver)
+            implementation(libs.ktor.serialization.kotlinx.json) //序列化模块
         }
 
 
