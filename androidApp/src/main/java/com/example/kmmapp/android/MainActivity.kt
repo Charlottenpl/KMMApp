@@ -44,9 +44,9 @@ class MainActivity : ComponentActivity() {
                     }, initUnit = {
                         ZeusSDK.init(
                             this,
-                            "appid",
-                            "appkey",
-                            "url",
+                            "7AVS2D5QH2TV",
+                            "DF864TCE1XWZE1NH",
+                            "https://abroad.topjoy.com/",
                             true,
                             object : CommonCallback {
                                 override fun onSuccess(code: Int, result: JsonObject) {

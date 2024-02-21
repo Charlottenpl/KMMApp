@@ -1,3 +1,4 @@
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
@@ -30,7 +31,7 @@ kotlin {
         commonMain.dependencies {
             //put your multiplatform dependencies here
             implementation(libs.kotlinx.coroutines.core)  //在libs.versions.toml 文件中定义
-            implementation(libs.ktor.ktor.client.core)
+            implementation(libs.ktor.ktor.client.core) //网络请求client
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json) //序列化模块
             implementation(libs.runtime)

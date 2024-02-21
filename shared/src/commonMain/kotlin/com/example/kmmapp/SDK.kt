@@ -1,103 +1,82 @@
 package com.example.kmmapp
 
 import SDK_CODE_SUCCESS
+import com.example.kmmapp.Common.SDK_ACCOUNT
+import com.example.kmmapp.Common.SDK_APP_ID
+import com.example.kmmapp.Common.SDK_APP_KEY
+import com.example.kmmapp.Common.SDK_USER_ID
+import com.example.kmmapp.Common.UrlConfig
 import com.example.kmmapp.entity.CallbackBean
 import com.example.kmmapp.entity.CommonCallback
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.engine.ProxyBuilder
-import io.ktor.client.engine.http
-import io.ktor.client.plugins.defaultRequest
-import io.ktor.client.request.cookie
-import io.ktor.client.request.forms.formData
-import io.ktor.client.request.get
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.HttpMethod
-import io.ktor.http.userAgent
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.example.kmmapp.entity.NetEntity
+import com.example.kmmapp.manager.HttpCallback
+import com.example.kmmapp.manager.Net.sendPost
+import io.ktor.http.HttpStatusCode
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 
 object SDK {
 
-    val httpClient by lazy { HttpClient {
-        engine {
-            proxy = ProxyBuilder.http("http://127.0.0.1:8888")
-            threadsCount = 4
-        }
-        defaultRequest {
-            // 可配置公共的 Cookies、Headers、Params
-        }
-    } }
-
-    fun sendGet(callback: (String)->Unit) {
-        //完成请求之后，别忘记调用 close() 来关闭和释放 HttpClient 实例，以免造成内存泄露
-        GlobalScope.launch(Dispatchers.Default) {
-            val res: HttpResponse = httpClient.get("https://www.baidu.com"){
-                method = HttpMethod.Get
-                header("TestHeader", "1")
-                header("MyHeader", "2")
-                userAgent("KMM Http Client")
-                cookie("USER_ID", "123456")
-
-                formData {
-                    // 示例写法，实际需要处理字节流
-                    append("image", ByteArray(256))
-                }
-            }
-
-            val stringBody: String = res.body()
-            callback(stringBody)
-        }
-    }
-
-
-    fun sendPost(callback: (String)->Unit) {
-        //完成请求之后，别忘记调用 close() 来关闭和释放 HttpClient 实例，以免造成内存泄露
-        GlobalScope.launch(Dispatchers.Default) {
-            val res: HttpResponse = httpClient.post("https://www.baidu.com"){
-                method = HttpMethod.Post
-                header("TestHeader", "1")
-                header("MyHeader", "2")
-                userAgent("KMM Http Client")
-                cookie("USER_ID", "123456")
-
-                formData {
-                    // 示例写法，实际需要处理字节流
-                    append("image", ByteArray(256))
-                }
-            }
-
-            val stringBody: String = res.bodyAsText()
-            callback(stringBody)
-        }
-    }
-
 
     fun init(appId: String, appKey: String, serviceUrl: String, isDebug: Boolean, callback: CommonCallback?){
         // 保存callback
         CallbackBean.initCallback = callback
+
+        SDK_APP_ID = appId
+        SDK_APP_KEY = appKey
+
         // 调用init方法
-        println("init success")
-        if (callback != null) {
-            callback.onSuccess(SDK_CODE_SUCCESS, buildJsonObject {
-                put("code", SDK_CODE_SUCCESS)
-            })
-        }
+        val entity = NetEntity(UrlConfig.gameInfo)
+
+        entity.add("appid", appId)
+            .add("lang", "1")
+
+        sendPost(entity, object : HttpCallback{
+            override fun onSuccess(response: String) {
+                callback?.onSuccess(SDK_CODE_SUCCESS, buildJsonObject {
+                    put("code", SDK_CODE_SUCCESS)
+                    put("result", response)
+                })
+            }
+
+            override fun onFail(statusCode: HttpStatusCode, response: String) {
+                TODO("Not yet implemented")
+            }
+
+        })
     }
 
     fun login(callback: CommonCallback?){
         CallbackBean.loginCallback = callback
 
-        if (callback != null) {
-            callback.onSuccess(SDK_CODE_SUCCESS, buildJsonObject {
-                put("code", SDK_CODE_SUCCESS)
+
+        if (SDK_USER_ID.isNotEmpty()){
+            // 调用init方法
+            val entity = NetEntity(UrlConfig.login)
+
+            entity.add("appid", SDK_APP_ID)
+                .add("account", SDK_ACCOUNT)
+                .add("lang", "1")
+                .add("device", getDeviceID())
+
+            sendPost(entity, object : HttpCallback{
+                override fun onSuccess(response: String) {
+                    println(response)
+                    callback?.onSuccess(SDK_CODE_SUCCESS, buildJsonObject {
+                        put("code", SDK_CODE_SUCCESS)
+                    })
+                }
+
+                override fun onFail(statusCode: HttpStatusCode, response: String) {
+                    TODO("Not yet implemented")
+                }
+
             })
+
+        }else {
+
         }
+
+
     }
 }

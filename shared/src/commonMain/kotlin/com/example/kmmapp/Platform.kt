@@ -5,3 +5,7 @@ interface Platform {
 }
 
 expect fun getPlatform(): Platform
+
+expect fun getRequestParamString(paramMap: HashMap<String, String>): String?
+
+expect fun getDeviceID(): String
